@@ -38,5 +38,5 @@ func TestParseISO(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, "2021-09-01 21:24:29", FormatMillis(date.UnixMilli()))
+	assert.Equal(t, "2021-09-01 13:24:29", FormatMillis(date.UnixMilli()))
 }
