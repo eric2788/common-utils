@@ -1,6 +1,8 @@
 package regex
 
-import "regexp"
+import (
+	"regexp"
+)
 
 // copied from stackoverflow
 // https://stackoverflow.com/questions/30483652/how-to-get-capturing-group-functionality-in-go-regular-expressions
