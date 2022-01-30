@@ -1,8 +1,14 @@
 name: test inside docker
 description: test inside docker
 
+inputs:
+  timezone:
+    description: 'Timezone to use for the test, default is Asia/Hong_Kong'
+    default: 'Asia/Hong_Kong'
+    required: false
+
 runs:
   using: docker
   image: 'Dockerfile'
   env:
-    TZ: 'Asia/Hong_Kong'
+    TZ: ${{ inputs.timezone }}

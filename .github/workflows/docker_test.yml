@@ -13,4 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/test_inside_docker
+        with:
+          timezone: '${{ matrix.timezone }}'
 
