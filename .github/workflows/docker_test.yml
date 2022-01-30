@@ -6,6 +6,9 @@ on:
 
 jobs:
   test_inside_docker:
+    strategy:
+      matrix:
+        timezone: ['America/New_York', 'Asia/Hong_Kong', 'Europe/London']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
