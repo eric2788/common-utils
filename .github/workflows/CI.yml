@@ -5,7 +5,6 @@ on:
     branches:
       - master
 
-
 jobs:
   test_all_utils:
     runs-on: ubuntu-latest
@@ -22,3 +21,5 @@ jobs:
         run: |
           go mod tidy
           go test ./...
+        env:
+          TZ: 'Asia/Hong_Kong'
