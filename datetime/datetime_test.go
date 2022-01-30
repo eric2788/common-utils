@@ -67,9 +67,9 @@ func TestParseISO(t *testing.T) {
 	case "Asia/Hong_Kong":
 		expected = "2021-09-01 21:24:29"
 	case "Europe/London":
-		expected = "2021-09-01 13:24:29"
+		expected = "2021-09-01 14:24:29"
 	case "America/New_York":
-		expected = "2021-09-01 05:24:29"
+		expected = "2021-09-01 09:24:29"
 	default:
 		log.Println("The test with timezone: ", tz, " is not supported")
 		log.Println("pass the test")
