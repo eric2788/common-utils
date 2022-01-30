@@ -1,0 +1,13 @@
+name: Test Inside Docker
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test_inside_docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/test_inside_docker
+

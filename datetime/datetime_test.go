@@ -20,7 +20,7 @@ func TestDuration(t *testing.T) {
 }
 
 func TestChangeTimeZone(t *testing.T) {
-	oTime := "2022-01-24T20:44:51Z"
+	oTime := "2022-01-30T14:00:00Z"
 	hk, err := time.LoadLocation("Asia/Hong_Kong")
 	if err != nil {
 		t.Fatal(err)
@@ -29,7 +29,20 @@ func TestChangeTimeZone(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, "2022-01-25T04:44:51+08", FormatISO(changed))
+
+	result := FormatISO(changed)
+
+	assert.Equal(t, "2022-01-30T22:00:00+08", result)
+
+	date, err := ParseISOStr(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 22, date.Hour())
+	assert.Equal(t, 0, date.Minute())
+	assert.Equal(t, 0, date.Second())
+
 }
 
 func TestParseISO(t *testing.T) {
