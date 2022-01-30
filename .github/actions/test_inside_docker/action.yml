@@ -4,3 +4,5 @@ description: test inside docker
 runs:
   using: docker
   image: 'Dockerfile'
+  env:
+    TZ: 'Asia/Hong_Kong'
