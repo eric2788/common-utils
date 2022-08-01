@@ -98,8 +98,14 @@ func Read(res *http.Response, response interface{}) error {
 // need to manually use defer res.body.Close()
 func ReadForRegex(res *http.Response, regs ...*regexp.Regexp) ([]string, error) {
 	bufReader := bufio.NewReader(res.Body)
+	defer res.Body.Close()
 	finder := make(map[int]string)
-	for line, _, err := bufReader.ReadLine(); err != io.EOF; line, _, err = bufReader.ReadLine() {
+
+	var err error = nil
+
+	for err != io.EOF {
+		line, _, err := bufReader.ReadLine()
+
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +124,6 @@ func ReadForRegex(res *http.Response, regs ...*regexp.Regexp) ([]string, error) 
 			}
 			return arr, nil
 		}
-
 	}
 
 	arr := make([]string, len(regs))
