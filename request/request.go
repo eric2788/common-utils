@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -97,20 +96,19 @@ func Read(res *http.Response, response interface{}) error {
 // ReadForRegex read multiple regexes from response without reading all response body
 // need to manually use defer res.body.Close()
 func ReadForRegex(res *http.Response, regs ...*regexp.Regexp) ([]string, error) {
-	bufReader := bufio.NewReader(res.Body)
-	defer res.Body.Close()
+
 	finder := make(map[int]string)
 
-	var err error = nil
+	defer res.Body.Close()
+	scanner := bufio.NewScanner(res.Body)
 
-	for err != io.EOF {
-		line, _, err := bufReader.ReadLine()
+	for scanner.Scan() {
 
-		if err != nil {
+		if err := scanner.Err(); err != nil {
 			return nil, err
 		}
 
-		content := string(line)
+		content := string(scanner.Bytes())
 		for i, reg := range regs {
 			if _, ok := finder[i]; !ok && reg.MatchString(content) {
 				finder[i] = content
@@ -135,5 +133,4 @@ func ReadForRegex(res *http.Response, regs ...*regexp.Regexp) ([]string, error) 
 		}
 	}
 	return arr, nil
-
 }
