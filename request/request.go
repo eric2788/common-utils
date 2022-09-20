@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/corpix/uarand"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -21,7 +22,12 @@ func (e HttpError) Error() string {
 
 func Get(url string, response interface{}) error {
 
-	res, err := http.Get(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("User-Agent", uarand.GetRandom())
+	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return err
@@ -38,7 +44,12 @@ func Get(url string, response interface{}) error {
 
 func GetHtml(url string) (string, error) {
 
-	res, err := http.Get(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("User-Agent", uarand.GetRandom())
+	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return "", err
@@ -48,7 +59,12 @@ func GetHtml(url string) (string, error) {
 }
 
 func GetBytesByUrl(url string) (img []byte, err error) {
-	res, err := http.Get(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", uarand.GetRandom())
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
