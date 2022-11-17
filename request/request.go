@@ -69,7 +69,7 @@ func GetBytesByUrl(url string) (data []byte, err error) {
 	if err != nil {
 		return nil, err
 	}else if res.StatusCode != 200 {
-		return &HttpError{
+		return nil, &HttpError{
 			Code:     res.StatusCode,
 			Status:   res.Status,
 			Response: res,
