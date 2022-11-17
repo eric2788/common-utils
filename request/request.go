@@ -58,20 +58,28 @@ func GetHtml(url string) (string, error) {
 	return ReadString(res)
 }
 
-func GetBytesByUrl(url string) (img []byte, err error) {
+func GetBytesByUrl(url string) (data []byte, err error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("User-Agent", uarand.GetRandom())
 	res, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		return nil, err
+	}else if res.StatusCode != 200 {
+		return &HttpError{
+			Code:     res.StatusCode,
+			Status:   res.Status,
+			Response: res,
+		}
 	}
+
 	defer func() {
 		err = res.Body.Close()
 	}()
-	img, err = ioutil.ReadAll(res.Body)
+	data, err = ioutil.ReadAll(res.Body)
 	return
 }
 
