@@ -22,10 +22,8 @@ type Product struct {
 	Images []string `json:"images"`
 }
 
-
-func TestRequester(t *testing.T) {
-
-	r := New(
+func createRequester(t *testing.T) *Requester {
+	return New(
 		WithBaseUrl("https://dummyjson.com"),
 		AddHeader("Content-Type", "application/json"),
 		AddHeader("Accept", "application/json"),
@@ -41,6 +39,51 @@ func TestRequester(t *testing.T) {
 			return nil
 		}),
 	)
+}
+
+func TestPost(t *testing.T) {
+
+	r := createRequester(t)
+
+	var resp Product
+	_, err := r.Post("/products/add", &resp, 
+		ConfigureData(map[string]interface{}{
+			"title": "Product test",
+			"description": "This is a product test",
+			"price": 100,
+			"discountPercentage": 0,
+			"rating": 0,
+			"stock": 100,
+			"brand": "Test",
+			"category": "test",
+			"thumbnail": "https://dummyimage.com/600x400/000/fff",
+			"images": []string{
+				"https://dummyimage.com/600x400/000/fff",
+				"https://dummyimage.com/600x400/000/fff",
+				"https://dummyimage.com/600x400/000/fff",
+			},
+		}),
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("response: %+v", resp)
+
+	assert.Equal(t, 101, resp.Id)
+	assert.Equal(t, "Product test", resp.Title)
+	assert.Equal(t, "This is a product test", resp.Description)
+	assert.Equal(t, "Test", resp.Brand)
+	assert.Equal(t, "test", resp.Category)
+	assert.Equal(t, 100, resp.Stock)
+	assert.Equal(t, float64(100), resp.Price)
+	assert.Equal(t, float64(0), resp.DiscountPercentage)
+}
+
+func TestGet(t *testing.T) {
+
+	r := createRequester(t)
 
 	var product Product
 	_, err := r.Get("/products/1", &product)
