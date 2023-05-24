@@ -1,160 +1,102 @@
 package request
 
 import (
-	"bufio"
-	"encoding/json"
-	"fmt"
-	"github.com/corpix/uarand"
-	"io/ioutil"
 	"net/http"
-	"regexp"
+	"time"
 )
 
-type HttpError struct {
-	Code     int
-	Status   string
-	Response *http.Response
+
+func New(factories ...RequesterFactory) *Requester {
+	req := &Requester{
+		Headers: make(map[string]string),
+		Cookies: make(map[string]string),
+		Client: http.DefaultClient,
+		Timeout: time.Second * 30,
+		DefaultDecoder: JsonDecoder,
+		DefaultEncoder: JsonEncoder,
+	}
+	for _, factory := range factories {
+		factory(req)
+	}
+	return req
 }
 
-func (e HttpError) Error() string {
-	return fmt.Sprintf("%v: %s", e.Code, e.Status)
+func WithDefaultDecoder(decoder Decoder) RequesterFactory {
+	return func(req *Requester) {
+		req.DefaultDecoder = decoder
+	}
 }
 
-func Get(url string, response interface{}) error {
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return err
+func WithDefaultEncoder(encoder Encoder) RequesterFactory {
+	return func(req *Requester) {
+		req.DefaultEncoder = encoder
 	}
-	req.Header.Set("User-Agent", uarand.GetRandom())
-	res, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		return err
-	} else if res.StatusCode != 200 {
-		return &HttpError{
-			Code:     res.StatusCode,
-			Status:   res.Status,
-			Response: res,
-		}
-	}
-
-	return Read(res, response)
 }
 
-func GetHtml(url string) (string, error) {
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return "", err
+func WithBaseUrl(baseUrl string) RequesterFactory {
+	return func(req *Requester) {
+		req.BaseUrl = baseUrl
 	}
-	req.Header.Set("User-Agent", uarand.GetRandom())
-	res, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		return "", err
-	}
-
-	return ReadString(res)
 }
 
-func GetBytesByUrl(url string) (data []byte, err error) {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
+func WithHeaders(headers map[string]string) RequesterFactory {
+	return func(req *Requester) {
+		req.Headers = headers
 	}
-	req.Header.Set("User-Agent", uarand.GetRandom())
-	res, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		return nil, err
-	}else if res.StatusCode != 200 {
-		return nil, &HttpError{
-			Code:     res.StatusCode,
-			Status:   res.Status,
-			Response: res,
-		}
-	}
-
-	defer func() {
-		err = res.Body.Close()
-	}()
-	data, err = ioutil.ReadAll(res.Body)
-	return
 }
 
-func ReadString(res *http.Response) (string, error) {
-	var err error
-
-	defer func() {
-		err = res.Body.Close()
-	}()
-
-	body, err := ioutil.ReadAll(res.Body)
-
-	if err != nil {
-		return "", err
+func WithCookies(cookies map[string]string) RequesterFactory {
+	return func(req *Requester) {
+		req.Cookies = cookies
 	}
-
-	return string(body), nil
 }
 
-func Read(res *http.Response, response interface{}) error {
-
-	var err error
-
-	defer func() {
-		err = res.Body.Close()
-	}()
-
-	body, err := ioutil.ReadAll(res.Body)
-
-	if err != nil {
-		return err
+func WithClient(client *http.Client) RequesterFactory {
+	return func(req *Requester) {
+		client.Timeout = req.Timeout
+		req.Client = client
 	}
-
-	err = json.Unmarshal(body, response)
-	return err
 }
 
-// ReadForRegex read multiple regexes from response without reading all response body
-// need to manually use defer res.body.Close()
-func ReadForRegex(res *http.Response, regs ...*regexp.Regexp) ([]string, error) {
-
-	finder := make(map[int]string)
-
-	defer res.Body.Close()
-	scanner := bufio.NewScanner(res.Body)
-
-	for scanner.Scan() {
-
-		if err := scanner.Err(); err != nil {
-			return nil, err
-		}
-
-		content := string(scanner.Bytes())
-		for i, reg := range regs {
-			if _, ok := finder[i]; !ok && reg.MatchString(content) {
-				finder[i] = content
-			}
-		}
-
-		if len(finder) == len(regs) {
-			arr := make([]string, len(finder))
-			for i, s := range finder {
-				arr[i] = s
-			}
-			return arr, nil
-		}
+func WithTimeout(timeout time.Duration) RequesterFactory {
+	return func(req *Requester) {
+		req.Timeout = timeout
+		req.Client.Timeout = timeout
 	}
+}
 
-	arr := make([]string, len(regs))
-	for i := range arr {
-		if content, ok := finder[i]; ok {
-			arr[i] = content
-		} else {
-			arr[i] = ""
-		}
+func WithRequestIntercepters(intercepters ...func(*http.Request) error) RequesterFactory {
+	return func(req *Requester) {
+		req.RequestIntercepters = intercepters
 	}
-	return arr, nil
+}
+
+func WithResponseIntercepters(intercepters ...func(*http.Response) error) RequesterFactory {
+	return func(req *Requester) {
+		req.ResponseIntercepters = intercepters
+	}
+}
+
+func AddHeader(key, value string) RequesterFactory {
+	return func(req *Requester) {
+		req.Headers[key] = value
+	}
+}
+
+func AddCookie(key, value string) RequesterFactory {
+	return func(req *Requester) {
+		req.Cookies[key] = value
+	}
+}
+
+func AddRequestIntercepter(intercepter func(*http.Request) error) RequesterFactory {
+	return func(req *Requester) {
+		req.RequestIntercepters = append(req.RequestIntercepters, intercepter)
+	}
+}
+
+func AddResponseIntercepter(intercepter func(*http.Response) error) RequesterFactory {
+	return func(req *Requester) {
+		req.ResponseIntercepters = append(req.ResponseIntercepters, intercepter)
+	}
 }

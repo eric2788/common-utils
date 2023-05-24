@@ -20,3 +20,4 @@ func GetParams(reg *regexp.Regexp, text string) (paramsMap map[string]string) {
 
 	return
 }
+

@@ -68,3 +68,4 @@ func getChannelStatus(channelId string) (*ChannelStatus, error) {
 		return status, nil
 	}
 }
+
