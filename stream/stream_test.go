@@ -26,7 +26,7 @@ func TestStudentArr(t *testing.T) {
 		{"Nate", 18},
 		{"Oliver", 19},
 		{"Peggy", 20},
-		// give me some non adult
+		// give me some non-adult
 		{"Quentin", 17},
 		{"Romeo", 17},
 		{"Steve", 17},
