@@ -9,17 +9,17 @@ import (
 )
 
 type Product struct {
-	Id int `json:"id"`
-	Title string `json:"title"`
-	Description string `json:"description"`
-	Price float64 `json:"price"`
-	DiscountPercentage float64 `json:"discountPercentage"`
-	Rating float32 `json:"rating"`
-	Stock int `json:"stock"`
-	Brand string `json:"brand"`
-	Category string `json:"category"`
-	Thumbnail string `json:"thumbnail"`
-	Images []string `json:"images"`
+	Id                 int      `json:"id"`
+	Title              string   `json:"title"`
+	Description        string   `json:"description"`
+	Price              float64  `json:"price"`
+	DiscountPercentage float64  `json:"discountPercentage"`
+	Rating             float32  `json:"rating"`
+	Stock              int      `json:"stock"`
+	Brand              string   `json:"brand"`
+	Category           string   `json:"category"`
+	Thumbnail          string   `json:"thumbnail"`
+	Images             []string `json:"images"`
 }
 
 func createRequester(t *testing.T) *Requester {
@@ -27,7 +27,7 @@ func createRequester(t *testing.T) *Requester {
 		WithBaseUrl("https://dummyjson.com"),
 		AddHeader("Content-Type", "application/json"),
 		AddHeader("Accept", "application/json"),
-		WithTimeout(10 * time.Second),
+		WithTimeout(10*time.Second),
 		AddRequestIntercepter(func(r *http.Request) error {
 			// do something with request
 			t.Logf("prepare to request: %s", r.URL.String())
@@ -46,17 +46,17 @@ func TestPost(t *testing.T) {
 	r := createRequester(t)
 
 	var resp Product
-	_, err := r.Post("/products/add", &resp, 
-		ConfigureData(map[string]interface{}{
-			"title": "Product test",
-			"description": "This is a product test",
-			"price": 100,
+	_, err := r.Post("/products/add", &resp,
+		Data(map[string]interface{}{
+			"title":              "Product test",
+			"description":        "This is a product test",
+			"price":              100,
 			"discountPercentage": 0,
-			"rating": 0,
-			"stock": 100,
-			"brand": "Test",
-			"category": "test",
-			"thumbnail": "https://dummyimage.com/600x400/000/fff",
+			"rating":             0,
+			"stock":              100,
+			"brand":              "Test",
+			"category":           "test",
+			"thumbnail":          "https://dummyimage.com/600x400/000/fff",
 			"images": []string{
 				"https://dummyimage.com/600x400/000/fff",
 				"https://dummyimage.com/600x400/000/fff",
