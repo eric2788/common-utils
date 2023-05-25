@@ -69,9 +69,56 @@ func TestStudentArr(t *testing.T) {
 
 	// map
 
-	names := Map(From(students), func(s Student) string {
+	names := MapTo(From(students), func(s Student) string {
 		return s.Name
 	})
 
 	t.Log("names:", names)
+
+
+	s := From(students).Filter(func(s Student) bool {
+		return s.Age > 17
+	})
+
+	m1 := ToMapStream(s, func(s Student)(string, int)  {
+		return s.Name, s.Age
+	})
+
+	t.Logf("%+v", m1.ToMap())
+	
+	m2 := ToMapStream(s, func(s Student)(string, Student)  {
+		return s.Name, s
+	})
+
+	t.Logf("%+v", m2.ToMap())
+
+}
+
+func TestMapStream(t *testing.T) {
+	m := map[string]string{
+		"1": "a",
+		"2": "b",
+		"3": "c",
+	}
+
+	ms := FromMap(m)
+	r := ms.Filter(func(k, v string) bool {
+		return k == "1"
+	})
+
+	t.Log(r.ToMap())
+
+	r = ms.Map(func(k, v string) (string, string) {
+		return k, v + "!"
+	})
+
+	t.Log(r.ToMap())
+
+	// map to entries -> Stream[MapEntry[K, V]]
+	r2 := ms.Entries().Find(func(e MapEntry[string, string]) bool {
+		return e.Key == "1"
+	})
+	
+	t.Logf("%v: %v", r2.Key, r2.Value)
+	
 }

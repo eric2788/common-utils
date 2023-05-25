@@ -18,7 +18,7 @@ func (s Stream[T]) Filter(predicate func(T) bool) Stream[T] {
 			result = append(result, v)
 		}
 	}
-	return Stream[T]{result}
+	return From(result)
 }
 
 func (s Stream[T]) Distinct() Stream[T] {
@@ -26,7 +26,26 @@ func (s Stream[T]) Distinct() Stream[T] {
 	for _, v := range s.arr {
 		set.Add(v)
 	}
-	return Stream[T]{set.ToSlice()}
+	return FromSet(set)
+}
+
+// Map only works for same type, if you want to change type, use MapTo
+func (s Stream[T]) Map(f func(T) T) Stream[T] {
+	var result []T
+	for _, v := range s.arr {
+		result = append(result, f(v))
+	}
+	return From(result)
+}
+
+
+// FlatMap only works for same type, if you want to change type, use FlatMapTo
+func (s Stream[T]) FlatMap(f func (T) []T) Stream[T] {
+	var result []T
+	for _, v := range s.arr {
+		result = append(result, f(v)...)
+	}
+	return From(result)
 }
 
 // unchainable
