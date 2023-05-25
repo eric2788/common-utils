@@ -56,11 +56,6 @@ func (r *Requester) do(req *http.Request) (*http.Response, error) {
 	return resp, nil
 }
 
-// update default settings, like adding bearer token to headers
-func (r *Requester) Update(factory RequesterFactory) {
-	factory(r)
-}
-
 func (r *Requester) Raw() *RawRequester {
 	return &RawRequester{r}
 }
