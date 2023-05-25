@@ -61,6 +61,10 @@ func (r *Requester) Update(factory RequesterFactory) {
 	factory(r)
 }
 
+func (r *Requester) Raw() *RawRequester {
+	return &RawRequester{r}
+}
+
 func (r *Requester) RequestWithConfig(config *Config, res interface{}) (*Response, error) {
 	
 
@@ -161,26 +165,14 @@ func (r *Requester) RequestWithConfig(config *Config, res interface{}) (*Respons
 	response := &Response{
 		Resp: resp,
 		Config: config,
+		req: r,
 	}
 
-	// close response body
-	defer resp.Body.Close()
-
-	// read response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return response, err
-	}
-
-	var decoder Decoder = r.DefaultDecoder
-	if config.RespDecoder != nil {
-		decoder = config.RespDecoder
-	}
-	// decode response body
-	if decoder != nil {
-		return response, decoder(body, res)
+	// no response struct passed
+	if res == nil {
+		return response, nil
 	} else {
-		return response, fmt.Errorf("ResponseDecoder is nil")
+		return response, response.Scan(res)
 	}
 }
 
