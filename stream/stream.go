@@ -2,11 +2,13 @@ package stream
 
 import (
 	mapset "github.com/deckarep/golang-set/v2"
+	"math/rand"
+	"time"
 )
 
-
 type Stream[T comparable] struct {
-	arr []T
+	arr    []T
+	random rand.Rand
 }
 
 // chainable
@@ -38,14 +40,22 @@ func (s Stream[T]) Map(f func(T) T) Stream[T] {
 	return From(result)
 }
 
-
 // FlatMap only works for same type, if you want to change type, use FlatMapTo
-func (s Stream[T]) FlatMap(f func (T) []T) Stream[T] {
+func (s Stream[T]) FlatMap(f func(T) []T) Stream[T] {
 	var result []T
 	for _, v := range s.arr {
 		result = append(result, f(v)...)
 	}
 	return From(result)
+}
+
+func (s Stream[T]) Shuffle() Stream[T] {
+	var shuffled []T
+	copy(shuffled, s.arr)
+	rand.Shuffle(len(s.arr), func(i, j int) {
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	})
+	return From(shuffled)
 }
 
 // unchainable
@@ -113,7 +123,6 @@ func (s Stream[T]) Count(predicate func(T) bool) int {
 	return count
 }
 
-
 // does not return anything
 
 func (s Stream[T]) ForEach(consumer func(T)) {
@@ -146,12 +155,16 @@ func (s Stream[T]) ToMap(keySelector func(T) string) map[string]T {
 	return result
 }
 
-
 func From[T comparable](arr []T) Stream[T] {
-	return Stream[T]{arr}
+	return createStream(arr)
 }
 
 func FromSet[T comparable](set mapset.Set[T]) Stream[T] {
-	return Stream[T]{set.ToSlice()}
+	return createStream(set.ToSlice())
 }
 
+func createStream[T comparable](arr []T) Stream[T] {
+	r := rand.Rand{}
+	r.Seed(time.Now().UnixNano())
+	return Stream[T]{arr, r}
+}
