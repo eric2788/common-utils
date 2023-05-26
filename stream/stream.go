@@ -135,6 +135,34 @@ func (s Stream[T]) Join(delimiter string) string {
 	return result
 }
 
+func (s Stream[T]) First() *T {
+	if len(s.arr) == 0 {
+		return nil
+	}
+	return &s.arr[0]
+}
+
+func (s Stream[T]) Last() *T {
+	if len(s.arr) == 0 {
+		return nil
+	}
+	return &s.arr[len(s.arr)-1]
+}
+
+func (s Stream[T]) MustFirst() *T {
+	if len(s.arr) == 0 {
+		panic("no element")
+	}
+	return &s.arr[0]
+}
+
+func (s Stream[T]) MustLast() *T {
+	if len(s.arr) == 0 {
+		panic("no element")
+	}
+	return &s.arr[len(s.arr)-1]
+}
+
 // does not return anything
 
 func (s Stream[T]) ForEach(consumer func(T)) {
