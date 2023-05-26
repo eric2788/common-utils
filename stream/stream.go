@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"fmt"
 	mapset "github.com/deckarep/golang-set/v2"
 	"math/rand"
 	"time"
@@ -121,6 +122,17 @@ func (s Stream[T]) Count(predicate func(T) bool) int {
 		}
 	}
 	return count
+}
+
+func (s Stream[T]) Join(delimiter string) string {
+	var result string
+	for i := 0; i < len(s.arr); i++ {
+		result += fmt.Sprint(s.arr[i])
+		if i != len(s.arr)-1 {
+			result += delimiter
+		}
+	}
+	return result
 }
 
 // does not return anything
