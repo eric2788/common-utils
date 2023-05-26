@@ -9,7 +9,7 @@ import (
 
 type Stream[T comparable] struct {
 	arr    []T
-	random rand.Rand
+	random *rand.Rand
 }
 
 // chainable
@@ -204,7 +204,6 @@ func FromSet[T comparable](set mapset.Set[T]) Stream[T] {
 }
 
 func createStream[T comparable](arr []T) Stream[T] {
-	r := rand.Rand{}
-	r.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return Stream[T]{arr, r}
 }
