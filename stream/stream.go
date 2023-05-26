@@ -51,9 +51,9 @@ func (s Stream[T]) FlatMap(f func(T) []T) Stream[T] {
 }
 
 func (s Stream[T]) Shuffle() Stream[T] {
-	var shuffled []T
+	shuffled := make([]T, len(s.arr))
 	copy(shuffled, s.arr)
-	rand.Shuffle(len(s.arr), func(i, j int) {
+	s.random.Shuffle(len(s.arr), func(i, j int) {
 		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
 	})
 	return From(shuffled)

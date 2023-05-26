@@ -23,13 +23,6 @@ func (s MapStream[K, V]) Filter(f func(K, V) bool) MapStream[K, V] {
 	return FromMap(newMap)
 }
 
-func (s MapStream[K, V]) Shuffle() MapStream[K, V] {
-	shuffled := s.Keys().Shuffle()
-	return ToMapStream(shuffled, func(k K) (K, V) {
-		return k, s.m[k]
-	})
-}
-
 func (s MapStream[K, V]) Entries() Stream[MapEntry[K, V]] {
 	var t []MapEntry[K, V]
 	for k, v := range s.m {
@@ -79,7 +72,7 @@ func (s MapStream[K, V]) FlatMap(f func(K, V) map[K]V) MapStream[K, V] {
 	return FromMap(newMap)
 }
 
-func (s *MapStream[K, V]) ToMap() map[K]V {
+func (s MapStream[K, V]) ToMap() map[K]V {
 	return s.m
 }
 

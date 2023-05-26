@@ -1,6 +1,8 @@
 package stream
 
-import "testing"
+import (
+	"testing"
+)
 
 type Student struct {
 	Name string
@@ -75,18 +77,17 @@ func TestStudentArr(t *testing.T) {
 
 	t.Log("names:", names)
 
-
 	s := From(students).Filter(func(s Student) bool {
 		return s.Age > 17
 	})
 
-	m1 := ToMapStream(s, func(s Student)(string, int)  {
+	m1 := ToMapStream(s, func(s Student) (string, int) {
 		return s.Name, s.Age
 	})
 
 	t.Logf("%+v", m1.ToMap())
-	
-	m2 := ToMapStream(s, func(s Student)(string, Student)  {
+
+	m2 := ToMapStream(s, func(s Student) (string, Student) {
 		return s.Name, s
 	})
 
@@ -118,7 +119,23 @@ func TestMapStream(t *testing.T) {
 	r2 := ms.Entries().Find(func(e MapEntry[string, string]) bool {
 		return e.Key == "1"
 	})
-	
+
 	t.Logf("%v: %v", r2.Key, r2.Value)
-	
+
+}
+
+func TestMapShuffle(t *testing.T) {
+	m := map[string]string{
+		"1": "a",
+		"2": "b",
+		"3": "c",
+		"4": "d",
+		"5": "e",
+	}
+
+	ms := FromMap(m)
+	m2 := ms.Keys().Shuffle()
+
+	t.Logf("before shuffle: %v", ms.Keys().ToArr())
+	t.Logf("after shuffle: %v", m2.ToArr())
 }
